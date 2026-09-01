@@ -124,12 +124,13 @@ export default function App() {
         )}
 
         {/* Layout Split: Cards List & Interactive Map */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px] flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px] w-full">
+
           {/* Venue List Panel */}
           <section
             id="venue-list-panel"
             aria-label="Vegan venues list"
-            className={`lg:col-span-6 overflow-y-auto pr-0 lg:pr-2 space-y-4 ${
+            className={`lg:col-span-6 overflow-y-auto pr-2 space-y-4 h-full ${
               mobileView === 'list' ? 'block' : 'hidden lg:block'
             }`}
           >
@@ -156,7 +157,7 @@ export default function App() {
 
           {/* Interactive Map Panel */}
           <section 
-            className={`lg:col-span-6 h-full min-h-[350px] ${
+            className={`lg:col-span-6 h-full relative ${
               mobileView === 'map' ? 'block' : 'hidden lg:block'
             }`}
           >

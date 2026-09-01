@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
-// Fixing default icon asset paths for Leaflet
+// Custom icon creator
 const createCustomIcon = (isSelected) =>
   L.divIcon({
     className: 'custom-map-pin',
@@ -27,7 +27,7 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
 
-  // Initialize Map
+  // 1. Initialize or re-center Map & recalculate size
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -44,9 +44,17 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
     } else {
       mapInstanceRef.current.setView([userCoords.lat, userCoords.lon], 13);
     }
+
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [userCoords]);
 
-  // Update Markers
+  // 2. Update Markers & trigger size calculation on venue updates
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -71,29 +79,30 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
 
       markersRef.current[venue.id] = marker;
     });
+
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [venues, selectedVenueId, onSelectVenue]);
 
-// In MapView.jsx
+  // 3. Handle window resizing & mobile view toggles
+  useEffect(() => {
+    const handleResize = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
 
-useEffect(() => {
-  const handleResize = () => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.invalidateSize();
-    }
-  };
+    const timer = setTimeout(handleResize, 150);
+    window.addEventListener('resize', handleResize);
 
-  // Run immediately with a short delay to account for layout shifts
-  const timer = setTimeout(handleResize, 100);
-
-  // Also invalidate whenever the browser window is resized
-  window.addEventListener('resize', handleResize);
-
-  return () => {
-    clearTimeout(timer);
-    window.removeEventListener('resize', handleResize);
-  };
-}, [mobileView]);
-
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileView]);
 
   return (
     <div
