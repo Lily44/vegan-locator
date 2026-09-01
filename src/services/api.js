@@ -1,7 +1,10 @@
 // Geocoding city/address using OpenStreetMap Nominatim API
 export const geocodeAddress = async (query) => {
+  // Added an email parameter to identify the app to OSM servers (Required for production domains)
   const response = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      query
+    )}&email=hello@vegan-locator.pages.dev`
   );
   if (!response.ok) throw new Error("Failed to resolve address.");
   const data = await response.json();
@@ -24,9 +27,14 @@ export const fetchVeganVenues = async (lat, lon, radiusInMeters = 5000) => {
     out center;
   `;
 
-  const response = await fetch(
-    `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`
-  );
+  // Switched to a POST request to prevent CORS blocking and URI length errors on live domains
+  const response = await fetch("https://overpass-api.de/api/interpreter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `data=${encodeURIComponent(query)}`,
+  });
 
   if (!response.ok) throw new Error("Failed to fetch venue data from Overpass API.");
 
