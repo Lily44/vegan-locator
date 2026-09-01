@@ -19,13 +19,16 @@ export const geocodeAddress = async (query) => {
 // Querying Vegan venues via OpenStreetMap Overpass API with GET Fallbacks
 export const fetchVeganVenues = async (lat, lon, radiusInMeters = 5000) => {
   const query = `
-    [out:json][timeout:25];
-    (
-      node["amenity"~"restaurant|cafe|fast_food"](around:${radiusInMeters},${lat},${lon});
-      way["amenity"~"restaurant|cafe|fast_food"](around:${radiusInMeters},${lat},${lon});
-    );
-    out center;
-  `;
+  [out:json][timeout:20];
+  (
+    node["amenity"~"restaurant|cafe|fast_food|pub|food_court"](around:${radiusInMeters},${lat},${lon});
+    way["amenity"~"restaurant|cafe|fast_food|pub|food_court"](around:${radiusInMeters},${lat},${lon});
+    node["shop"~"bakery|deli"](around:${radiusInMeters},${lat},${lon});
+    way["shop"~"bakery|deli"](around:${radiusInMeters},${lat},${lon});
+  );
+  out center qt;
+`;
+
 
   const encodedQuery = encodeURIComponent(query);
 
