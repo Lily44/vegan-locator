@@ -13,7 +13,7 @@ export const geocodeAddress = async (query) => {
 };
 
 export const fetchVeganVenues = async (lat, lon) => {
-  // Calls your serverless Cloudflare proxy
+  // Place the fetch call right here:
   const response = await fetch(`/functions/yelp?lat=${lat}&lon=${lon}&term=vegan`);
 
   if (!response.ok) {
@@ -27,16 +27,15 @@ export const fetchVeganVenues = async (lat, lon) => {
   }
 
   return data.businesses.map((b) => {
-    // Categorize
     let category = "Restaurants";
     const categoryTitles = b.categories.map((c) => c.title.toLowerCase());
+    
     if (categoryTitles.some((c) => c.includes("coffee"))) {
       category = "Coffee Shops";
-    } else if (categoryTitles.some((c) => c.includes("cafe") || c.includes("bakery"))) {
+    } else if (categoryTitles.some((c) => c.includes("cafe") || c.includes("bakery") || c.includes("deli"))) {
       category = "Cafes";
     }
 
-    // Check if 100% vegan based on categories/attributes
     const isOnlyVegan = categoryTitles.some((c) => c === "vegan");
 
     return {
