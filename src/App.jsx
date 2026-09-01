@@ -161,6 +161,27 @@ export default function App() {
         </div>
       </main>
 
+       {/* Floating Mobile Toggle Button */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <button
+          onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
+          aria-label={`Switch to ${mobileView === 'list' ? 'Map' : 'List'} View`}
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-full shadow-lg transition-transform active:scale-95"
+        >
+          {mobileView === 'list' ? (
+            <>
+              <Map className="w-5 h-5" />
+              <span>Map View</span>
+            </>
+          ) : (
+            <>
+              <List className="w-5 h-5" />
+              <span>List View</span>
+            </>
+          )}
+        </button>
+      </div>
+
       <footer className="bg-white border-t border-stone-200 py-4 text-center text-xs text-stone-500">
         Data provided by OpenStreetMap Overpass API
       </footer>
