@@ -5,7 +5,7 @@ import VenueCard from './components/VenueCard';
 import MapView from './components/MapView';
 import SkeletonLoader from './components/SkeletonLoader';
 import { geocodeAddress, fetchVeganVenues } from './services/api';
-import { Leaf, AlertCircle } from 'lucide-react';
+import { Leaf, AlertCircle, Map, List } from 'lucide-react';
 
 export default function App() {
   const [coords, setCoords] = useState({ lat: 40.7128, lon: -74.006 }); // Default: New York
@@ -16,6 +16,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeoLoading, setIsGeoLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Mobile view toggle state ('list' or 'map')
+  const [mobileView, setMobileView] = useState('list');
 
   const loadVenues = async (latitude, longitude) => {
     setIsLoading(true);
@@ -77,7 +80,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-cream-50 text-slateText flex flex-col">
+    <div className="min-h-screen bg-cream-50 text-slateText flex flex-col relative">
       {/* Header */}
       <header className="bg-white border-b border-stone-200 py-6 px-4 sm:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto">
@@ -98,7 +101,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8 flex flex-col">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
           <div>
             <h2 className="text-xl font-bold text-slateText">
@@ -121,12 +124,14 @@ export default function App() {
         )}
 
         {/* Layout Split: Cards List & Interactive Map */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-280px)] min-h-[600px] flex-1">
           {/* Venue List Panel */}
           <section
             id="venue-list-panel"
             aria-label="Vegan venues list"
-            className="lg:col-span-6 overflow-y-auto pr-0 lg:pr-2 space-y-4"
+            className={`lg:col-span-6 overflow-y-auto pr-0 lg:pr-2 space-y-4 ${
+              mobileView === 'list' ? 'block' : 'hidden lg:block'
+            }`}
           >
             {isLoading ? (
               <SkeletonLoader />
@@ -150,7 +155,11 @@ export default function App() {
           </section>
 
           {/* Interactive Map Panel */}
-          <section className="lg:col-span-6 h-full min-h-[350px]">
+          <section 
+            className={`lg:col-span-6 h-full min-h-[350px] ${
+              mobileView === 'map' ? 'block' : 'hidden lg:block'
+            }`}
+          >
             <MapView
               userCoords={coords}
               venues={filteredVenues}
@@ -161,12 +170,12 @@ export default function App() {
         </div>
       </main>
 
-       {/* Floating Mobile Toggle Button */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      {/* Floating Mobile Toggle Button */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <button
           onClick={() => setMobileView(mobileView === 'list' ? 'map' : 'list')}
           aria-label={`Switch to ${mobileView === 'list' ? 'Map' : 'List'} View`}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-full shadow-lg transition-transform active:scale-95"
+          className="flex items-center gap-2 bg-forest-700 hover:bg-forest-800 text-white font-medium px-5 py-3 rounded-full shadow-lg transition-transform active:scale-95"
         >
           {mobileView === 'list' ? (
             <>
@@ -183,7 +192,7 @@ export default function App() {
       </div>
 
       <footer className="bg-white border-t border-stone-200 py-4 text-center text-xs text-stone-500">
-        Data provided by OpenStreetMap Overpass API
+        Data provided by Yelp Fusion API
       </footer>
     </div>
   );
