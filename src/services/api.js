@@ -16,7 +16,7 @@ export const geocodeAddress = async (query) => {
   };
 };
 
-// Querying Vegan venues via OpenStreetMap Overpass API with Fallbacks
+// Querying Vegan venues via OpenStreetMap Overpass API with GET Fallbacks
 export const fetchVeganVenues = async (lat, lon, radiusInMeters = 5000) => {
   const query = `
     [out:json][timeout:25];
@@ -27,37 +27,29 @@ export const fetchVeganVenues = async (lat, lon, radiusInMeters = 5000) => {
     out center;
   `;
 
-  const bodyData = `data=${encodeURIComponent(query)}`;
+  const encodedQuery = encodeURIComponent(query);
 
-  // Array of public Overpass API mirrors
+  // Array of global Overpass API endpoints (including the highly stable French mirror)
   const endpoints = [
     "https://overpass-api.de/api/interpreter",
-    "https://lz4.overpass-api.de/api/interpreter",
-    "https://z.overpass-api.de/api/interpreter"
+    "https://overpass.openstreetmap.fr/api/interpreter",
+    "https://lz4.overpass-api.de/api/interpreter"
   ];
 
   let response;
   
-  // Loop through endpoints until one works
+  // Using a simple GET request to avoid CORS Preflight (OPTIONS) blocks entirely
   for (const endpoint of endpoints) {
     try {
-      response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: bodyData,
-      });
-      
-      // If successful, break out of the loop
+      response = await fetch(`${endpoint}?data=${encodedQuery}`);
       if (response.ok) break;
     } catch (err) {
-      console.warn(`Connection refused by ${endpoint}. Trying backup server...`);
+      console.warn(`Connection failed for ${endpoint}. Trying backup...`);
     }
   }
 
   if (!response || !response.ok) {
-    throw new Error("The map servers are currently too busy. Please try again in a moment.");
+    throw new Error("The map servers are currently unreachable. Please ensure ad-blockers or Brave Shields are disabled for this site.");
   }
 
   const data = await response.json();
@@ -107,4 +99,3 @@ export const fetchVeganVenues = async (lat, lon, radiusInMeters = 5000) => {
 
   return formatted;
 };
-
