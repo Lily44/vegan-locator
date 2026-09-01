@@ -73,17 +73,27 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
     });
   }, [venues, selectedVenueId, onSelectVenue]);
 
-    // Effect to fix tile rendering when switching to Map View
-  useEffect(() => {
-    if (mapInstanceRef.current && mobileView === 'map') {
-      // Small timeout ensures the DOM container has finished transitioning to block display
-      const timer = setTimeout(() => {
-        mapInstanceRef.current.invalidateSize();
-      }, 100);
+// In MapView.jsx
 
-      return () => clearTimeout(timer);
+useEffect(() => {
+  const handleResize = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.invalidateSize();
     }
-  }, [mobileView]);
+  };
+
+  // Run immediately with a short delay to account for layout shifts
+  const timer = setTimeout(handleResize, 100);
+
+  // Also invalidate whenever the browser window is resized
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    clearTimeout(timer);
+    window.removeEventListener('resize', handleResize);
+  };
+}, [mobileView]);
+
 
   return (
     <div
