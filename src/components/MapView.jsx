@@ -27,32 +27,36 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
 
-  // 1. Initialize or re-center Map & recalculate size
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
+ // 1. Initialize or re-center Map & recalculate size
+useEffect(() => {
+  if (!mapContainerRef.current) return;
 
-    if (!mapInstanceRef.current) {
-      mapInstanceRef.current = L.map(mapContainerRef.current).setView(
-        [userCoords.lat, userCoords.lon],
-        13
-      );
+  // If map doesn't exist yet, create it
+  if (!mapInstanceRef.current) {
+    mapInstanceRef.current = L.map(mapContainerRef.current).setView(
+      [userCoords.lat, userCoords.lon],
+      13
+    );
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(mapInstanceRef.current);
-    } else {
-      mapInstanceRef.current.setView([userCoords.lat, userCoords.lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(mapInstanceRef.current);
+  } else {
+    // Force Leaflet to fly/pan to the newly searched coordinates
+    mapInstanceRef.current.setView([userCoords.lat, userCoords.lon], 13);
+  }
+
+  // Force size recalculation after re-centering
+  const timer = setTimeout(() => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.invalidateSize();
     }
+  }, 100);
 
-    const timer = setTimeout(() => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.invalidateSize();
-      }
-    }, 100);
+  return () => clearTimeout(timer);
+}, [userCoords.lat, userCoords.lon]); // Track lat & lon specifically
 
-    return () => clearTimeout(timer);
-  }, [userCoords]);
 
   // 2. Update Markers & trigger size calculation on venue updates
   useEffect(() => {
