@@ -1,6 +1,9 @@
 export const geocodeAddress = async (query) => {
+  // If the user enters a 5-digit US zip code, append USA to avoid global collisions
+  const formattedQuery = /^\d{5}$/.test(query.trim()) ? `${query.trim()}, USA` : query;
+
   const response = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formattedQuery)}`
   );
   if (!response.ok) throw new Error("Failed to resolve address.");
   const data = await response.json();
