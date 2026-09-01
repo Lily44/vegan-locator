@@ -13,8 +13,8 @@ export const geocodeAddress = async (query) => {
 };
 
 export const fetchVeganVenues = async (lat, lon) => {
-  // Place the fetch call right here:
-  const response = await fetch(`/functions/yelp?lat=${lat}&lon=${lon}&term=vegan`);
+  // Corrected endpoint path to hit your Cloudflare Pages function
+  const response = await fetch(`/api/yelp?lat=${lat}&lon=${lon}&term=vegan`);
 
   if (!response.ok) {
     throw new Error("Unable to fetch venues from Yelp.");
