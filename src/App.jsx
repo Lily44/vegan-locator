@@ -165,6 +165,7 @@ export default function App() {
               venues={filteredVenues}
               selectedVenueId={selectedVenueId}
               onSelectVenue={setSelectedVenueId}
+              mobileView={mobileView}
             />
           </section>
         </div>

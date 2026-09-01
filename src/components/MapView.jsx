@@ -22,7 +22,7 @@ const createCustomIcon = (isSelected) =>
     iconAnchor: [16, 16],
   });
 
-export default function MapView({ userCoords, venues, selectedVenueId, onSelectVenue }) {
+export default function MapView({ userCoords, venues, selectedVenueId, onSelectVenue, mobileView }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
@@ -72,6 +72,18 @@ export default function MapView({ userCoords, venues, selectedVenueId, onSelectV
       markersRef.current[venue.id] = marker;
     });
   }, [venues, selectedVenueId, onSelectVenue]);
+
+    // Effect to fix tile rendering when switching to Map View
+  useEffect(() => {
+    if (mapInstanceRef.current && mobileView === 'map') {
+      // Small timeout ensures the DOM container has finished transitioning to block display
+      const timer = setTimeout(() => {
+        mapInstanceRef.current.invalidateSize();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [mobileView]);
 
   return (
     <div
